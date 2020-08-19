@@ -1,0 +1,2 @@
+python<4>3.8
+pyyaml<6
