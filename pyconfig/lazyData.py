@@ -3,7 +3,7 @@
 import os
 import yaml
 
-from collections.abc import Sequence
+from collections.abc import Sequence, Mapping, Iterator
 
 EXTENSION_LIST = ['.yml', '.yaml', '.json']
 KEYFILE = '__config__'
@@ -12,29 +12,45 @@ class LazyList(Sequence):
     def __init__(self, path, length):
         self.path=path
         self.length=length
-    def __getitem__(self, key:int):
+
+    def __getitem__(self, key:[int, tuple, slice]):
         #TODO: allow for directories
-        return load(is_file_with_extension(os.path.join(self.path, f"{key}")))
+        if isinstance(key, int):
+            if 0>key>-self.length:
+                key = self.length + key
+            try:
+                return load(is_file_with_extension(os.path.join(self.path, f"{key}")))
+            except FileNotFoundError:
+                raise IndexError('list index out of range')
+        elif isinstance(key, tuple): 
+            return [self[x] for x in key] #TODO: performance?
+        elif isinstance(key, slice):
+            return [self[x] for x in range(self.length)[key]]
+        raise TypeError(f'Index must be int, tuple or slice, not {type(key).__name__}')
     
     def __len__(self):
         return self.length
 
 
 
-class LazyDict(dict):
+class LazyDict(Mapping):
     def __init__(self, path_pointer:str=''):
         assert os.path.isdir(path_pointer), 'can only generate a LazyDict from valid directory'
 
+        self._raw_dict = {}
         # does Keyfile exist?
         if f:=is_file_with_extension(os.path.join(path_pointer, KEYFILE)):
-            true_dict = load(f)
-            assert isinstance(true_dict, dict), ("naked list in Keyfile not allowed: "
+            self._raw_dict = load(f)
+            assert isinstance(self._raw_dict, dict), ("naked list in Keyfile not allowed: "
                 "use list in a lower level or a LazyList in directory")
-            super().__init__(true_dict)
-
+        
         self.path = path_pointer
+        self._lazy_keys = ls_directory_strip_extensions(self.path)
+        assert not set(self._raw_dict.keys()).intersection(self._lazy_keys), 'duplicate keys not allowed'
 
-    def __missing__(self, key:str):
+    def __getitem__(self, key:str):
+        if result :=self._raw_dict.get(key):
+            return result
         path_candidate = os.path.join(self.path, key)
         if f:=is_file_with_extension(path_candidate):
             return load(f)
@@ -51,9 +67,37 @@ class LazyDict(dict):
             else:
                 return LazyDict(path_candidate)
         else:
-            raise KeyError(key)          
+            raise KeyError(key)
+    
+    def __len__(self):
+        return len(self._raw_dict) + len(self._lazy_keys)
+    
+    def __iter__(self):
+        return LazyDictIterator(self)
 
-            
+#TODO: the if check in every iteration should be surperflous (inefficient)
+# check if you can get rid of it using generators with two yield statements
+class LazyDictIterator(Iterator):
+    def __init__(self, lazyDict:LazyDict):
+        self.lazyDict = lazyDict
+        self.dictIter = iter(lazyDict._raw_dict)
+        self.lazyKeysIter = iter(lazyDict._lazy_keys)
+        self.dict_done = False
+        
+    def __next__(self):
+        if(self.dict_done):
+            try:
+                return self.dictIter.__next__()
+            except StopIteration:
+                self.dict_done = True
+        else:
+            return self.lazyDict[self.lazyKeysIter.__next__()]
+
+        
+
+
+def ls_directory_strip_extensions(dir_path:str) -> list:
+    return [os.path.splitext(os.path.basename(p)) for p in os.listdir(dir_path)]
 
 
 def is_file_with_extension(candidate:str, extension_list:list=EXTENSION_LIST) -> str:
@@ -66,3 +110,11 @@ def is_file_with_extension(candidate:str, extension_list:list=EXTENSION_LIST) ->
 def load(path:str)->[dict,list]:
     with open(path, 'r') as f:
         return yaml.load(f)
+
+
+if __name__ == "__main__":
+    d=LazyDict('test_config_default')
+    l = d['list']
+    key = -1
+    l[key]
+    print(key)
