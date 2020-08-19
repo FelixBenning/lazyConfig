@@ -22,10 +22,18 @@ class LazyList(Sequence):
 
 
 class LazyDict(dict):
-    def __init__(self, true_dict:dict, path_pointer:str=''):
-        super().__init__(true_dict)
+    def __init__(self, path_pointer:str=''):
+        assert os.path.isdir(path_pointer), 'can only generate a LazyDict from valid directory'
+
+        # does Keyfile exist?
+        if f:=is_file_with_extension(os.path.join(path_pointer, KEYFILE)):
+            true_dict = load(f)
+            assert isinstance(true_dict, dict), ("naked list in Keyfile not allowed: "
+                "use list in a lower level or a LazyList in directory")
+            super().__init__(true_dict)
+
         self.path = path_pointer
-    
+
     def __missing__(self, key:str):
         path_candidate = os.path.join(self.path, key)
         if f:=is_file_with_extension(path_candidate):
@@ -40,15 +48,8 @@ class LazyDict(dict):
                 )), f"{f} indicates LazyList, but the last element deduced by the number of files does not exist"
 
                 return LazyList(path_candidate, length)
-
-            true_dict = {}
-            # does Keyfile exist?
-            if f:=is_file_with_extension(os.path.join(path_candidate, KEYFILE)):
-                tru_dict = load(f)
-                assert isinstance(tru_dict, dict), ("naked list in Keyfile not allowed: "
-                    "use list in a lower level or a LazyList in directory")
-            
-            return LazyDict(true_dict, path_candidate)
+            else:
+                return LazyDict(path_candidate)
         else:
             raise KeyError(key)          
 
