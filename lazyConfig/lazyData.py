@@ -130,7 +130,7 @@ def is_file_with_extension(candidate:str, extension_list:list=EXTENSION_LIST) ->
 
 def load(path:str)->[dict,list]:
     with open(path, 'r') as f:
-        return yaml.load(f)
+        return yaml.unsafe_load(f)
 
 
 if __name__ == "__main__":
