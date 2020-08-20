@@ -10,6 +10,7 @@ KEYFILE = '__config__'
 
 class LazyList(Sequence):
     def __init__(self, path, length):
+        assert os.path.isdir(path), 'can only generate LazyList from valid directory'
         self.path=path
         self.length=length
 
@@ -30,21 +31,24 @@ class LazyList(Sequence):
     
     def __len__(self):
         return self.length
+    
+    def __repr__(self):
+        return f"LazyList(path='{self.path}', length={self.length})"
 
 
 
 class LazyDict(Mapping):
-    def __init__(self, path_pointer:str=''):
-        assert os.path.isdir(path_pointer), 'can only generate a LazyDict from valid directory'
+    def __init__(self, path:str=''):
+        assert os.path.isdir(path), 'can only generate a LazyDict from valid directory'
 
         self._raw_dict = {}
         # does Keyfile exist?
-        if f:=is_file_with_extension(os.path.join(path_pointer, KEYFILE)):
+        if f:=is_file_with_extension(os.path.join(path, KEYFILE)):
             self._raw_dict = load(f)
             assert isinstance(self._raw_dict, dict), ("naked list in Keyfile not allowed: "
                 "use list in a lower level or a LazyList in directory")
         
-        self.path = path_pointer
+        self.path = path
         self._lazy_keys = ls_directory_strip_extensions(self.path)
         assert not set(self._raw_dict.keys()).intersection(self._lazy_keys), 'duplicate keys not allowed'
 
@@ -75,6 +79,22 @@ class LazyDict(Mapping):
     def __iter__(self):
         return LazyDictIterator(self)
 
+    def __repr__(self):
+        return f"LazyDict(path='{self.path}')"
+    
+    def __str__(self):
+        return (f"LazyDict(path={self.path}):\n"
+            + "    Loaded Dict: "
+            + self._raw_dict.__str__() + "\n"
+            + "    Lazy Keys: "
+            + self._lazy_keys.__str__() + '\n'
+        ) 
+    
+    # def keys(self):
+    #     return self._raw_dict.keys()
+
+
+
 #TODO: the if check in every iteration should be surperflous (inefficient)
 # check if you can get rid of it using generators with two yield statements
 class LazyDictIterator(Iterator):
@@ -82,22 +102,23 @@ class LazyDictIterator(Iterator):
         self.lazyDict = lazyDict
         self.dictIter = iter(lazyDict._raw_dict)
         self.lazyKeysIter = iter(lazyDict._lazy_keys)
-        self.dict_done = False
+        self.dict_in_progress = True
         
     def __next__(self):
-        if(self.dict_done):
+        if(self.dict_in_progress):
             try:
                 return self.dictIter.__next__()
             except StopIteration:
-                self.dict_done = True
+                self.dict_in_progress = False
+                return self.lazyKeysIter.__next__()
         else:
-            return self.lazyDict[self.lazyKeysIter.__next__()]
+            return self.lazyKeysIter.__next__()
 
         
 
 
 def ls_directory_strip_extensions(dir_path:str) -> list:
-    return [os.path.splitext(os.path.basename(p)) for p in os.listdir(dir_path)]
+    return [name for p in os.listdir(dir_path) if (name:=os.path.splitext(os.path.basename(p))[0]) != KEYFILE]
 
 
 def is_file_with_extension(candidate:str, extension_list:list=EXTENSION_LIST) -> str:
@@ -115,6 +136,4 @@ def load(path:str)->[dict,list]:
 if __name__ == "__main__":
     d=LazyDict('test_config_default')
     l = d['list']
-    key = -1
-    l[key]
-    print(key)
+    list(d.keys())
