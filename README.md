@@ -2,8 +2,8 @@
 
 > lazily loading (and overriding) configuration to help a lazy coder
 
-- [Why lazyConfig?](motivation)
-- [How to use lazyConfig?](usage)
+- [Why lazyConfig?](https://github.com/FelixBenning/lazyConfig/blob/master/Motivation.md)
+- [How to use lazyConfig?](https://github.com/FelixBenning/lazyConfig/blob/master/Usage.md)
 
 ## Versions:
 
