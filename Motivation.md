@@ -11,7 +11,7 @@ configuration.
 
 You might have this configuration in a certain location relative to your
 program, but ideally you set the configuration directory with a environment
-variable. 
+variable.
 
 If your app is developed for a docker container you can use .env files to set
 default values for these environment variables. It becomes trivial to switch
@@ -24,7 +24,7 @@ Now you could implement such an override pattern yourself. Or you could use
 ## 2. Dealing with multi-file configuration
 
 There are multiple reasons why you might want to split up configuration into
-multiple files. One reason is, that you have configuration for different 
+multiple files. One reason is, that you have configuration for different
 components. You might, as an example, have an elasticsearch database with
 multiple indices. Since the [index creation
 API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-create-index.html)
@@ -39,11 +39,11 @@ manually with `curl`, which means that every deployment of your database has a
 considerable share of manual labor. In an improved scenario you hardcode the
 file locations into a script which feeds your fresh database. In the best case
 you put all the index files into an `indices` folder, all the pipelines into a
-`pipelines` folder, etc. and loop over the files in these folders. 
+`pipelines` folder, etc. and loop over the files in these folders.
 
 So your directory structure now looks something like this
 
-```
+```text
 config
     elasticsearch
         indices
@@ -59,12 +59,12 @@ config
 ```
 
 Now you could just have a `index feeding script` which uses an environment
-variable to find the index folder and feeds the database all the indices, and 
+variable to find the index folder and feeds the database all the indices, and
 a `pipeline feeding script` with an environment variable which does the same
 for pipelines, etc. Now you have a lot of environment variables all of which
 you have to change if you move the entire folder. Okay so maybe it is better to
 have relative paths and append them to a folder path. This is less birttle but
-now you still have a ton of environment variables. 
+now you still have a ton of environment variables.
 
 Well, so what if you do away with all these relative paths completely and
 simply recursively load your entire configuration into a nested dictionary? I
@@ -91,7 +91,7 @@ not waste so much memory for nothing.
 
 Now we could go back and load configuration for different components as needed.
 This would make our dependency injection a little bit more murky but at least
-we are saving memory, right? 
+we are saving memory, right?
 
 Or we could try to be clever and avoid loading the entire configuration into
 memory but still pretend we did, and act like a config dictionary.
