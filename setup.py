@@ -11,13 +11,11 @@ setup(name='lazyConfig',
       author_email='felix.benning@gmail.com',
       description='lazily loading and overriding configuration for the lazy coder',
       long_description=long_description,
-      long_description_content_type='text/markdown',
       url='https://github.com/FelixBenning/lazyConfig',
       packages=['lazyConfig' ],
       classifiers=[
             "Programming Language :: Python :: 3"
             "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)"
-            "Development Status :: 3 - Alpha"
-      ],
-      python_requires='>=3.8'
+            "Development Status :: 4 - Beta"
+      ]
      )

@@ -20,7 +20,7 @@ class LazyList(Sequence):
             if 0>key>-self.length:
                 key = self.length + key
             try:
-                return load(is_file_with_extension(os.path.join(self.path, f"{key}")))
+                return pyyaml_load(is_file_with_extension(os.path.join(self.path, f"{key}")))
             except FileNotFoundError:
                 raise IndexError('list index out of range')
         elif isinstance(key, tuple): 
@@ -44,7 +44,7 @@ class LazyDict(Mapping):
         self._raw_dict = {}
         # does Keyfile exist?
         if f:=is_file_with_extension(os.path.join(path, KEYFILE)):
-            self._raw_dict = load(f)
+            self._raw_dict = pyyaml_load(f)
             assert isinstance(self._raw_dict, dict), ("naked list in Keyfile not allowed: "
                 "use list in a lower level or a LazyList in directory")
         
@@ -57,7 +57,7 @@ class LazyDict(Mapping):
             return result
         path_candidate = os.path.join(self.path, key)
         if f:=is_file_with_extension(path_candidate):
-            return load(f)
+            return pyyaml_load(f)
         elif os.path.isdir(path_candidate):
             # is LazyList?
             if f:=is_file_with_extension(os.path.join(path_candidate, '0')):
@@ -90,9 +90,6 @@ class LazyDict(Mapping):
             + self._lazy_keys.__str__() + '\n'
         ) 
     
-    # def keys(self):
-    #     return self._raw_dict.keys()
-
 
 
 #TODO: the if check in every iteration should be surperflous (inefficient)
@@ -128,7 +125,7 @@ def is_file_with_extension(candidate:str, extension_list:list=EXTENSION_LIST) ->
     return ''
 
 
-def load(path:str)->[dict,list]:
+def pyyaml_load(path:str)->[dict,list]:
     with open(path, 'r') as f:
         return yaml.unsafe_load(f)
 
