@@ -1,0 +1,8 @@
+connection:
+  hosts:
+    - {host: "myElasticsearchServer", port: 9200}
+  timeout: 42
+configuration:
+  indices:
+    index1: overridden index
+  

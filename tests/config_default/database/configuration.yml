@@ -1,0 +1,5 @@
+indices:
+    index1: toBeOveridden
+    index2: stayIndex
+pipelines:
+    pipeline1: pipelineValue

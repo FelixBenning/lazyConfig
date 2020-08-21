@@ -1,0 +1,4 @@
+connection:
+    hosts:
+        - {host: "localhost", port: 9200}
+    timeout: 10

@@ -39,7 +39,7 @@ class LazyList(Sequence):
 
 class LazyDict(Mapping):
     def __init__(self, path:str=''):
-        assert os.path.isdir(path), 'can only generate a LazyDict from valid directory'
+        assert os.path.isdir(path), 'can only generate LazyDict from valid directory'
 
         self._raw_dict = {}
         # does Keyfile exist?
