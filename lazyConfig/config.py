@@ -51,7 +51,7 @@ class Config:
     @staticmethod
     def from_env(config:str, *override:str)->Config:
         """ build from environment variables """
-        return Config.from_path(os.environ[config], *[os.environ[x] for x in override])
+        return Config.from_path(os.environ[config], *[env for x in override if (env:=os.environ.get(x))])
 
 class ConfigList(Sequence):
     def __init__(self, raw_list:Union[list,LazyList]):

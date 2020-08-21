@@ -17,6 +17,12 @@ def test_createConfig():
     print(config)
     dir(config)
 
+    # second and later variables may be unset/empty
+    os.environ['Empty'] = ''
+    Config.from_env('TEST', 'Empty')
+    del os.environ['Empty']
+    Config.from_env('TEST', 'Empty')
+
 def test_override():
     cfg = Config.from_path('tests/config_default', 'tests/config')
 

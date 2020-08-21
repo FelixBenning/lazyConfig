@@ -39,9 +39,11 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
+	"mounts": ["source=${localEnv:HOME}${localEnv:USERPROFILE}/.pypirc,target=/home/vscode/.pypirc,type=bind"],
+
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip3 install --user -r ../.devcontainer/requirements.txt",
+	"postCreateCommand": "pip3 install --user -r .devcontainer/requirements.txt",
 
 	// Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
-	// "remoteUser": "vscode"
+	"remoteUser": "vscode"
 }
