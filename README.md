@@ -203,4 +203,5 @@ things which I might get around to do some time:
 
 ## Versions
 
+- 0.1.1 handle NULL environment variables
 - 0.1: basic proof of concept
