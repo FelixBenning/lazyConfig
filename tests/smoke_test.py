@@ -25,6 +25,7 @@ def test_createConfig():
 
     # is Mapping
     config.items()
+    iter(config)
 
 def test_override():
     cfg = Config.from_path('tests/config_default', 'tests/config')

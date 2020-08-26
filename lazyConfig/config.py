@@ -59,12 +59,12 @@ class Config(Mapping):
         """ build from environment variables """
         return Config.from_path(os.environ[config], *[env for x in override if (env:=os.environ.get(x))])
     
-# TODO: possibly sufficient to return a LazyDictIterator of the _default dict
-# as the iterator only needs to return the keys and the _default dict defines
+# TODO: possibly sufficient to return a LazyDictIterator of the _config dict
+# as the iterator only needs to return the keys and the _config dict defines
 # the keys available
 class ConfigIterator(Iterator):
     def __init__(self, config:Config):
-        self.defaultIter = iter(config._default)
+        self.defaultIter = iter(config._config)
 
     def __next__(self):
         return self.defaultIter.__next__()
