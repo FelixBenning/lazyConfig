@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 from typing import Union
-from collections.abc import Sequence, Mapping
+from collections.abc import Sequence, Mapping, Iterator
 import os
 
 from lazyConfig import LazyDict, LazyList
 
 
-class Config:
+class Config(Mapping):
     def __init__(self, config, *override):
         self._config = config 
         self._override = override
@@ -44,6 +44,12 @@ class Config:
     def __str__(self) -> str:
         return f"configuration keys: {dir(self)}"
 
+    def __len__(self):
+        return len(self._config)
+    
+    def __iter__(self):
+        return ConfigIterator(self)
+
     @staticmethod
     def from_path(config:str, *override:str) -> Config:
         return Config(LazyDict(config), *[LazyDict(x) for x in override])
@@ -52,6 +58,16 @@ class Config:
     def from_env(config:str, *override:str)->Config:
         """ build from environment variables """
         return Config.from_path(os.environ[config], *[env for x in override if (env:=os.environ.get(x))])
+    
+# TODO: possibly sufficient to return a LazyDictIterator of the _default dict
+# as the iterator only needs to return the keys and the _default dict defines
+# the keys available
+class ConfigIterator(Iterator):
+    def __init__(self, config:Config):
+        self.defaultIter = iter(config._default)
+
+    def __next__(self):
+        return self.defaultIter.__next__()
 
 class ConfigList(Sequence):
     def __init__(self, raw_list:Union[list,LazyList]):

@@ -21,7 +21,10 @@ def test_createConfig():
     os.environ['Empty'] = ''
     Config.from_env('TEST', 'Empty')
     del os.environ['Empty']
-    Config.from_env('TEST', 'Empty')
+    config = Config.from_env('TEST', 'Empty')
+
+    # is Mapping
+    config.items()
 
 def test_override():
     cfg = Config.from_path('tests/config_default', 'tests/config')
