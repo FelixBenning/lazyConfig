@@ -1,7 +1,7 @@
 import pytest
 
-from lazyConfig import Config
-import os
+from lazyConfig import Config, ConfigList
+import os, yaml
 
 def test_createConfig():
     cfg = Config.from_path('tests/config_default')
@@ -45,3 +45,18 @@ def test_override():
     assert cfg.database.configuration.indices.index2 == 'stayIndex'
 
 
+def test_equality():
+    l_std = [1,2,3,'test', False]
+    l_cfg = ConfigList(l_std)
+
+    assert l_std == l_cfg, "list == ConfigList(list) equality is broken"
+    assert l_cfg == l_std, "ConfigList(list) == list equality is broken"
+
+    assert ConfigList([]) == [], 'empty list equality is broken'
+
+    with open("tests/config/database/__config__.yml", 'r') as f:
+        std_dict_connection = yaml.load(f)['connection']
+    
+    config_connection = Config.from_path('tests/config').database.connection
+
+    assert std_dict_connection == config_connection, 'Config equality is broken'

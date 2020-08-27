@@ -86,6 +86,14 @@ class ConfigList(Sequence):
     
     def __repr__(self):
         return f"ConfigList({repr(self.list)})"
+    
+    def __eq__(self, other):
+        if (l:=len(self)) == len(other):
+            for ii in range(l):
+                if self[ii] != other[ii]:
+                    return False
+            return True
+        return False
 
 
     

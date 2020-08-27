@@ -203,6 +203,7 @@ things which I might get around to do some time:
 
 ## Versions
 
+- 0.2.2 fix equality
 - 0.2.1 fix broken iterator
 - 0.2 Config implements Mapping
 - 0.1.1 handle NULL environment variables
