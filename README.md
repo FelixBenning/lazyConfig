@@ -1,5 +1,6 @@
 # lazyConfig
 
+[![PyPI version](https://badge.fury.io/py/lazyConfig.svg)](https://badge.fury.io/py/lazyConfig)
 [![License: MPL
 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 [![codecov](https://codecov.io/gh/FelixBenning/lazyConfig/branch/master/graph/badge.svg)](https://codecov.io/gh/FelixBenning/lazyConfig)
