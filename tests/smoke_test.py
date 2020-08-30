@@ -55,7 +55,7 @@ def test_equality():
     assert ConfigList([]) == [], 'empty list equality is broken'
 
     with open("tests/config/database/__config__.yml", 'r') as f:
-        std_dict_connection = yaml.load(f)['connection']
+        std_dict_connection = yaml.unsafe_load(f)['connection']
     
     config_connection = Config.from_path('tests/config').database.connection
 
