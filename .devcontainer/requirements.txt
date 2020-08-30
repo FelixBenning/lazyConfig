@@ -2,3 +2,5 @@ ipykernel
 rope
 pytest
 twine
+pylint
+pytest-cov
