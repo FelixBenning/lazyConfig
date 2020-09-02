@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from collections.abc import Sequence, Mapping, Iterator
+from enum import Enum
 
 import os
 import yaml
@@ -8,9 +9,15 @@ import yaml
 EXTENSION_LIST = ['.yml', '.yaml', '.json']
 KEYFILE = '__config__'
 
+
+class LazyMode(Enum):
+    eager = 0
+    cached = 1
+    lazy = 2
+
 class LazyList(Sequence):
     def __init__(self, path, length):
-        assert os.path.isdir(path), 'can only generate LazyList from valid directory'
+        # assert os.path.isdir(path), 'can only generate LazyList from valid directory'
         self.path=path
         self.length=length
 
@@ -39,7 +46,7 @@ class LazyList(Sequence):
 
 class LazyDict(Mapping):
     def __init__(self, path:str=''):
-        assert os.path.isdir(path), 'can only generate LazyDict from valid directory'
+        # assert os.path.isdir(path), 'can only generate LazyDict from valid directory'
 
         self._raw_dict = {}
         # does Keyfile exist?
@@ -127,6 +134,14 @@ def pyyaml_load(path:str)->[dict,list]:
 
 
 if __name__ == "__main__":
-    d=LazyDict('test_config_default')
-    l = d['list']
-    list(d.keys())
+    # %%
+    class LazMode:
+        eager = 0
+        cached = 1
+        lazy = 2
+    
+    print(LazMode.eager)
+    # %%
+    print(LazyMode.eager)
+    print(type(LazyMode.eager))
+    print(isinstance(LazyMode.eager, LazyMode))
