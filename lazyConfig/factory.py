@@ -1,0 +1,86 @@
+import os, yaml, json
+
+from collections.abc import Sequence, Mapping
+
+from .config import Config, ConfigList
+from .lazyData import LazyList, LazyDict, DEFAULT_EXTENSION_MAP
+from lazyConfig import LazyMode
+
+def from_env(
+    config:str, override:str = '', 
+    laziness:LazyMode = LazyMode.CACHED,
+    custom_extension_loader:dict = {}
+) -> Config:
+    """ build Config from environment variables 
+    
+    config: (required) environment variable with path to (default) configuration
+                directory as its contents
+    override: env var pointing to os.pathsep (':' linux, ';' win) separated paths
+                configuration directories overriding the `config` directory
+    laziness: a mode from the enum LazyMode
+    custom_extension_loader: a dictionary of file extensions and loader functions
+                overriding the default loaders. E.g. {'yml': yaml.safe_load}    
+    """
+    override_list = []
+    
+    if path_list:=os.environ.get(override):
+        override_list = path_list.split(sep=os.pathsep)
+
+    return from_path(
+        config = os.environ[config],
+        override = override_list,
+        laziness = laziness,
+        custom_extension_loader = custom_extension_loader
+    )
+
+def from_path(
+    config:str, override:list=[],
+    laziness:LazyMode = LazyMode.CACHED,
+    custom_extension_loader:dict = {}
+) -> Config:
+    """ build Config from path to configuration directories
+    
+    config: (required) path to (default) configuration directory as its
+                contents
+    override: list of paths to configuration directories overriding the
+                `config` directory
+    laziness: a mode from the enum LazyMode
+    custom_extension_loader: a dictionary of file extensions and loader functions
+                overriding the default loaders. E.g. {'yml': yaml.safe_load}    
+    """
+    (extension_loader := DEFAULT_EXTENSION_MAP.copy()).update(custom_extension_loader)
+    return(Config(
+        config = LazyDict(config),
+        override = [LazyDict(x) for x in override],
+        laziness = laziness,
+        extension_loader = extension_loader
+    ))
+
+def from_primitive(config, override:list = []) -> Config:
+    """ build Config from primitive datatypes (dict/list)
+
+    note: if config is a list, the last non-empty list in override is used an
+    all other are ignored
+    """
+    if isinstance(config, Mapping):
+        return Config(
+            config,
+            override,
+            extension_loader = DEFAULT_EXTENSION_MAP.copy(),
+            laziness = LazyMode.EAGER
+        )
+    if isinstance(config, Sequence):
+        for cfg_list in override[::-1]:
+            if cfg_list:
+                assert isinstance(cfg_list, Sequence), 'default is Sequence, override is not'
+                return ConfigList(
+                    cfg_list, 
+                    extension_loader = DEFAULT_EXTENSION_MAP.copy(),
+                    laziness = LazyMode.EAGER
+                )
+        return ConfigList(
+            config, 
+            extension_loader = DEFAULT_EXTENSION_MAP.copy(), 
+            laziness = LazyMode.EAGER
+        )
+    raise ValueError("config is neither Mapping nor Sequence")
