@@ -28,9 +28,7 @@ def from_env(
 
     return from_path(
         config = os.environ[config],
-        override = override_list,
-        laziness = laziness,
-        custom_extension_loader = custom_extension_loader
+        override = override_list
     )
 
 def from_path(
@@ -50,10 +48,8 @@ def from_path(
     """
     (extension_loader := DEFAULT_EXTENSION_MAP.copy()).update(custom_extension_loader)
     return(Config(
-        config = LazyDict(config),
-        override = [LazyDict(x) for x in override],
-        laziness = laziness,
-        extension_loader = extension_loader
+        config = LazyDict(config,laziness=laziness,extension_map=extension_loader),
+        override = [LazyDict(x, laziness, extension_loader) for x in override]
     ))
 
 def from_primitive(config, override:list = []) -> Config:
@@ -65,22 +61,12 @@ def from_primitive(config, override:list = []) -> Config:
     if isinstance(config, Mapping):
         return Config(
             config,
-            override,
-            extension_loader = DEFAULT_EXTENSION_MAP.copy(),
-            laziness = LazyMode.EAGER
+            override
         )
     if isinstance(config, Sequence):
         for cfg_list in override[::-1]:
             if cfg_list:
                 assert isinstance(cfg_list, Sequence), 'default is Sequence, override is not'
-                return ConfigList(
-                    cfg_list, 
-                    extension_loader = DEFAULT_EXTENSION_MAP.copy(),
-                    laziness = LazyMode.EAGER
-                )
-        return ConfigList(
-            config, 
-            extension_loader = DEFAULT_EXTENSION_MAP.copy(), 
-            laziness = LazyMode.EAGER
-        )
+                return ConfigList(cfg_list)
+        return ConfigList(config)
     raise ValueError("config is neither Mapping nor Sequence")
