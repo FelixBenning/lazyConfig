@@ -88,22 +88,20 @@ class LazyDict(Mapping):
                 "use list in a lower level or a LazyList in directory")
 
         assert not set(self._raw_dict.keys()).intersection(self._lazy_dict.keys()), 'duplicate keys not allowed'
+        
+        if self._laziness == LazyMode.EAGER:
+            self.force_load()
 
 
     def __getitem__(self, key:str):
         try:
-            result = self._raw_dict[key]
+            return self._raw_dict[key]
         except KeyError:
-            pass
-        else:
-            return result
-        if self._laziness in (LazyMode.CACHED, LazyMode.EAGER):
             try:
-                result = self._cache_dict[key]
+                return self._cache_dict[key]
             except KeyError:
                 pass
-            else:
-                return result
+        if self._laziness in (LazyMode.CACHED, LazyMode.EAGER):
             try:
                 extension = self._lazy_dict.pop(key)
             except KeyError as err:
@@ -121,10 +119,7 @@ class LazyDict(Mapping):
         """ recursively loading all keys into _raw_dict essentially converting
         to a normal dict
         """
-        if self._laziness == LazyMode.EAGER:
-            return
-        for key, ext in self._lazy_dict:
-            self._raw_dict[key] = self._fetch(key, ext, LazyMode.EAGER)
+        self._raw_dict = self.as_dict(copy=False)
         self._lazy_dict = {}
         self._laziness = LazyMode.EAGER
     
@@ -183,8 +178,13 @@ def _as_primitive(obj, copy = True):
     raise ValueError('Not a LazyData Type')
 
 def files_in_dir_with_given_ext(dir_path:str, extensions:list) -> list:
-    """ returns list of filenames (stripped of their extension) of files in the
+    """ returns dictionary of filenames (stripped of their extension) of files in the
     given directory with extensions from the given `extensions` list. 
+
+    Example:
+    extensions: ['.txt']
+    dir: file1.txt, file2.py
+    -> Output: {'file1' : '.txt'}
 
     names of directories map to None to differentiate it from files with no
     extension i.e. ''.
