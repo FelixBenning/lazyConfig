@@ -15,7 +15,6 @@ DEFAULT_EXTENSION_MAP = {
     '.json': json.load
 }
 
-EXTENSION_LIST = ['.yml', '.yaml', '.json']
 KEYFILE = '__config__'
 
 
@@ -61,7 +60,10 @@ class LazyList(Sequence):
     
     def as_list(self):
         return self[:]
-
+    
+    def as_primitive(self):
+        """ alias for as_list """
+        return self.as_list()
 
 
 class LazyDict(Mapping):
@@ -119,17 +121,23 @@ class LazyDict(Mapping):
         """ recursively loading all keys into _raw_dict essentially converting
         to a normal dict
         """
-        self._raw_dict = self.as_dict(copy=False)
-        self._lazy_dict = {}
         self._laziness = LazyMode.EAGER
-    
-    def as_dict(self, copy = True):
-        result = _as_primitive(self._raw_dict, copy)
-        for key, value in self._cache_dict:
-            result[key] = _as_primitive(value, copy)
         for key, ext in self._lazy_dict:
-            result[key] = _as_primitive(self._fetch(key, ext, LazyMode.EAGER), copy)
+            self._cache_dict[key] = self._fetch(key, ext, LazyMode.EAGER)
+        self._lazy_dict = {}
+    
+    def as_dict(self):
+        if self._laziness in (LazyMode.CACHED, LazyMode.EAGER):
+            self.force_load()
+        result = {(key, _as_primitive(value)) for key, value in self._cache_dict}
+        for key, ext in self._lazy_dict:
+            result[key] = _as_primitive(self._fetch(key, ext, LazyMode.EAGER))
+        result.update(self._raw_dict)
         return result
+    
+    def as_primitive(self):
+        """ alias for as_dict"""
+        return self.as_dict()
 
     def _fetch(self, key, extension, laziness:LazyMode):
         if extension == None: # is dir
@@ -165,16 +173,11 @@ class LazyDict(Mapping):
             + self._lazy_dict.__str__() + '\n'
         )
 
-def _as_primitive(obj, copy = True):
+def _as_primitive(obj):
     if isinstance(obj, (list, dict)):
-        if copy:
-            return obj.copy()
-        else:
-            return obj
-    if isinstance(obj, LazyDict):
-        return obj.as_dict(copy)
-    if isinstance(obj, LazyList):
-        return obj.as_list(copy)
+        return obj
+    if isinstance(obj, (LazyDict, LazyList)):
+        return obj.as_primitive()
     raise ValueError('Not a LazyData Type')
 
 def files_in_dir_with_given_ext(dir_path:str, extensions:list) -> list:
@@ -198,7 +201,7 @@ def files_in_dir_with_given_ext(dir_path:str, extensions:list) -> list:
             result[name] = extension
     return result
 
-def dir_is_lazyList(path:str, extension_list:list= EXTENSION_LIST) -> Optional[Tuple[str, int]]:
+def dir_is_lazyList(path:str, extension_list:list) -> Optional[Tuple[str, int]]:
     for ext in extension_list:
         if os.path.isfile(os.path.join(path, '0'+ext)):
             length = len(os.listdir(path))
@@ -213,17 +216,3 @@ def load(path:str, loader:Callable[[], Union[dict, list]]) -> Union[dict, list]:
     """ load file from path with the provided loader """
     with open(path, 'r') as cfg_file:
         return loader(cfg_file)
-
-
-if __name__ == "__main__":
-    # %%
-    class LazMode:
-        eager = 0
-        cached = 1
-        lazy = 2
-    
-    print(LazMode.eager)
-    # %%
-    print(LazyMode.EAGER)
-    print(type(LazyMode.EAGER))
-    print(isinstance(LazyMode.EAGER, LazyMode))
