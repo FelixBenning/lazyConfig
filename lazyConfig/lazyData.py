@@ -7,12 +7,13 @@ import itertools
 from enum import Enum
 
 import os
-import yaml, json
+import yaml, json, toml
 
 DEFAULT_EXTENSION_MAP = {
     '.yml': yaml.unsafe_load,
     '.yaml': yaml.unsafe_load,
-    '.json': json.load
+    '.json': json.load,
+    '.toml': toml.load
 }
 
 KEYFILE = '__config__'

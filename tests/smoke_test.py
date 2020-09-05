@@ -2,7 +2,7 @@ import pytest
 
 import lazyConfig
 from lazyConfig import Config, ConfigList, LazyMode
-import os, yaml, json
+import os, yaml, json, toml
 
 def test_createConfig():
     cfg = Config.from_path('tests/config_default')
@@ -92,3 +92,7 @@ def test_lists():
     prim_list = config.list.as_list()
     assert config.as_primitive()['list'] == prim_list
 
+def test_toml():
+    config = lazyConfig.from_path('tests/config_toml')
+    with open('tests/config_toml/__config__.toml', 'r') as f:
+        assert config == toml.loads(f.read())

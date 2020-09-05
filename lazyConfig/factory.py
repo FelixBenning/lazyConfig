@@ -1,5 +1,7 @@
 import os, yaml, json
 
+from typing import Dict, Callable, Union
+from _io import TextIOWrapper
 from collections.abc import Sequence, Mapping
 
 from .config import Config, ConfigList
@@ -9,7 +11,7 @@ from lazyConfig import LazyMode
 def from_env(
     config:str, override:str = '', 
     laziness:LazyMode = LazyMode.CACHED,
-    custom_extension_loader:dict = {}
+    custom_extension_loader:Dict[str, Callable[[TextIOWrapper], Union[dict,list]]] = {}
 ) -> Config:
     """ build Config from environment variables 
     
@@ -28,13 +30,15 @@ def from_env(
 
     return from_path(
         config = os.environ[config],
-        override = override_list
+        override = override_list,
+        laziness= laziness,
+        custom_extension_loader=custom_extension_loader
     )
 
 def from_path(
     config:str, override:list=[],
     laziness:LazyMode = LazyMode.CACHED,
-    custom_extension_loader:dict = {}
+    custom_extension_loader:Dict[str, Callable[[TextIOWrapper], Union[dict,list]]] = {}
 ) -> Config:
     """ build Config from path to configuration directories
     
@@ -46,7 +50,9 @@ def from_path(
     custom_extension_loader: a dictionary of file extensions and loader functions
                 overriding the default loaders. E.g. {'yml': yaml.safe_load}    
     """
-    (extension_loader := DEFAULT_EXTENSION_MAP.copy()).update(custom_extension_loader)
+    ext_map = DEFAULT_EXTENSION_MAP.copy()
+    ext_map.update(custom_extension_loader)
+    extension_loader = {key:value for key,value in ext_map.items() if value}
     return(Config(
         config = LazyDict(config,laziness=laziness,extension_map=extension_loader),
         override = [LazyDict(x, laziness, extension_loader) for x in override]
