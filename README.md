@@ -21,25 +21,28 @@ In order to load your configuration folder into a `dict` like structure, simply
 point `lazyConfig` to the folder
 
 ```python
-from lazyConfig import Config
+import lazyConfig
 
-config = Config.from_path(
+config = lazyConfig.from_path(
     config='/path/to/default/config',
-    '/path/to/override',
-    '/path/to/another/override/',
-    ...
+    override=[
+        '/path/to/override',
+        '/path/to/another/override/',
+        ...
+    ]
 )
 
 # or with environment variables:
 
-config = Config.from_env(config='DEFAULT_CONFIG_ENV_VAR', 'OVERRIDE1', ...)
+os.envrion['OVERRIDE'] = f'/path/to/override/{os.pathsep}/path/to/another/override/'
+config = Config.from_env(config='DEFAULT_CONFIG_ENV_VAR', override='OVERRIDE')
 ```
 
 where the environment variables should contain the path to the configuration
 directories. Files are overriden left to right (i.e. the last argument has
 priority)
 
-> you can mix and match using `Config.from_path` and `os.environ[ENV_VAR]`
+> you can mix and match using `Config.from_path` and `os.environ['ENV_VAR']`
 
 ### Assumptions about the file structure
 
@@ -192,12 +195,22 @@ This might become a feature in a future version if requested
 ## Security
 
 Using `pyYAML.unsafe_load()`, `lazyConfig` is currently not meant for external data.
+Pass a `custom_extension_loader` to the factory method:
+
+```python
+lazyConfig.from_path('path/to/config', custom_extension_loader={
+    '.yml': yaml.safe_load,
+    '.yaml': yaml.safe_load
+})
+```
+
+This overrides the yaml loader while leaving the other loaders in place. To remove
+a default loader, override the extension with a Falsy value (e.g. `None`)
 
 ## Future Features
 
 things which I might get around to do some time:
 
-- other configuration languages/parsers (e.g. TOML, safe config loaders, etc.)
 - Configuration Validation
 - Horizontal override (Templates, e.g. for indices)
 - Configuration Setter
@@ -208,6 +221,7 @@ things which I might get around to do some time:
 
 ## Versions
 
+- 0.3 as_primitive, as_dict, as_list, laziness modes and custom loader, TOML support
 - 0.2.2 fix equality
 - 0.2.1 fix broken iterator
 - 0.2 Config implements Mapping

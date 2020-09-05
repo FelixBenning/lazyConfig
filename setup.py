@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='lazyConfig',
-      version='0.2.2',
+      version='0.3',
       author='Felix Benning',
       author_email='felix.benning@gmail.com',
       description='lazily loading and overriding configuration for the lazy coder',
@@ -21,6 +21,8 @@ setup(name='lazyConfig',
       ],
       python_requires='>=3.8',
       install_requires=[
-            'pyyaml>5<6'
+            'pyYAML>=5.3.1<6',
+            'toml>=0.10.1<1',
+            'deprecation>=2.1<3'
       ]
      )
