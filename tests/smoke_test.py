@@ -1,8 +1,8 @@
 import pytest
 
 import lazyConfig
-from lazyConfig import Config, ConfigList
-import os, yaml
+from lazyConfig import Config, ConfigList, LazyMode
+import os, yaml, json
 
 def test_createConfig():
     cfg = Config.from_path('tests/config_default')
@@ -66,4 +66,29 @@ def test_equality():
     config_override = lazyConfig.from_path('tests/config_default', ['tests/config'])
     assert config_override.database.connection == config_connection, 'Override is broken'
 
-    assert config_override.as_dict() == config_override, 'as_dict is broken'
+    d = config_override.as_dict()
+    assert d == config_override, 'as_dict is broken'
+    
+    json.dumps(d)
+
+def test_properties():
+    config = lazyConfig.from_path('tests/config_default', ['tests/config'])
+    count = 0
+    for _ in config:
+        count += 1
+    
+    assert count == len(config), "length is broken"
+
+    config_override_lazy = lazyConfig.from_path('tests/config_default', ['tests/config'], laziness=LazyMode.LAZY)
+    lazy_dict = config_override_lazy.as_dict()
+    assert config == lazy_dict, 'laziness breaks'
+
+def test_lists():
+    config = lazyConfig.from_path('tests/config_default')
+    assert config.list[-1] == config.list[len(config.list)-1], 'negative indices broken'
+    assert config.list[1:5] == config.list[1:2], 'oversized ranges broken'
+    assert config.list[0,1] == config.list, 'tuples broken'
+
+    prim_list = config.list.as_list()
+    assert config.as_primitive()['list'] == prim_list
+

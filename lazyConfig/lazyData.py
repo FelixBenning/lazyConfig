@@ -156,10 +156,10 @@ class LazyDict(Mapping):
         return len(self._raw_dict) + len(self._lazy_dict) + len(self._cache_dict)
 
     def __iter__(self):
-        return itertools.chain(
-            iter(self._raw_dict),
-            iter(self._cache_dict),
-            iter(self._lazy_dict)
+        return iter(
+            list(self._raw_dict.keys())
+            + list(self._cache_dict.keys())
+            + list(self._lazy_dict.keys())
         )
 
     def __repr__(self):
@@ -169,6 +169,8 @@ class LazyDict(Mapping):
         return (f"LazyDict(path={self.path}):\n"
             + "    Loaded Dict: "
             + self._raw_dict.__str__() + "\n"
+            + "    Cached: "
+            + self._cache_dict.__str__() + "\n"
             + "    Lazy Keys: "
             + self._lazy_dict.__str__() + '\n'
         )

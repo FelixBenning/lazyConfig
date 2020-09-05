@@ -16,6 +16,8 @@ def override(old:Mapping, new:Mapping):
     for key, value in new.items():
         if isinstance(value, Mapping):
             override(old[key], value)
+        elif isinstance(value, LazyList):
+            old[key] = value.as_list()
         else:
             old[key] = value
 
