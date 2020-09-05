@@ -22,7 +22,7 @@ setup(name='lazyConfig',
       python_requires='>=3.8',
       install_requires=[
             'pyYAML>=5.3.1<6',
-            'toml>=0.10.1<1'
+            'toml>=0.10.1<1',
             'deprecation>=2.1<3'
       ]
      )
