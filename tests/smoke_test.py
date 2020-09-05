@@ -29,6 +29,7 @@ def test_createConfig():
     iter(config)
 
 def test_override():
+    print('test_override')
     cfg = lazyConfig.from_path('tests/config_default', ['tests/config'])
 
     # list overridden 
@@ -58,6 +59,11 @@ def test_equality():
     with open("tests/config/database/__config__.yml", 'r') as f:
         std_dict_connection = yaml.unsafe_load(f)['connection']
     
-    config_connection = Config.from_path('tests/config').database.connection
+    config_connection = lazyConfig.from_path('tests/config').database.connection
 
     assert std_dict_connection == config_connection, 'Config equality is broken'
+
+    config_override = lazyConfig.from_path('tests/config_default', ['tests/config'])
+    assert config_override.database.connection == config_connection, 'Override is broken'
+
+    assert config_override.as_dict() == config_override, 'as_dict is broken'

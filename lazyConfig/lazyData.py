@@ -122,15 +122,15 @@ class LazyDict(Mapping):
         to a normal dict
         """
         self._laziness = LazyMode.EAGER
-        for key, ext in self._lazy_dict:
+        for key, ext in self._lazy_dict.items():
             self._cache_dict[key] = self._fetch(key, ext, LazyMode.EAGER)
         self._lazy_dict = {}
     
     def as_dict(self):
         if self._laziness in (LazyMode.CACHED, LazyMode.EAGER):
             self.force_load()
-        result = {(key, _as_primitive(value)) for key, value in self._cache_dict}
-        for key, ext in self._lazy_dict:
+        result = {key: _as_primitive(value) for key, value in self._cache_dict.items()}
+        for key, ext in self._lazy_dict.items():
             result[key] = _as_primitive(self._fetch(key, ext, LazyMode.EAGER))
         result.update(self._raw_dict)
         return result

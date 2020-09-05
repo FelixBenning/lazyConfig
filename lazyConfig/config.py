@@ -11,6 +11,14 @@ from .lazyData import LazyDict, LazyList, LazyMode
 import lazyConfig
 
 
+def override(old:Mapping, new:Mapping):
+    """ override values recursively leaving sister keys untouched """
+    for key, value in new.items():
+        if isinstance(value, Mapping):
+            override(old[key], value)
+        else:
+            old[key] = value
+
 class Config(Mapping):
     def __init__(
         self, config:Mapping, override:list
@@ -51,8 +59,8 @@ class Config(Mapping):
         for cfg in self._override:
             if isinstance(cfg, LazyDict):
                 cfg = cfg.as_dict()
-            result.update(cfg)
-        return self._config.as_dict()
+            override(result, cfg)
+        return result
     
     def force_load(self):
         self._config = self.as_dict()
@@ -126,3 +134,4 @@ class ConfigList(Sequence):
                     return False
             return True
         return False
+
