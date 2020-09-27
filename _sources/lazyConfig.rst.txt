@@ -1,0 +1,37 @@
+lazyConfig package
+==================
+
+Submodules
+----------
+
+lazyConfig.config module
+------------------------
+
+.. automodule:: lazyConfig.config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+lazyConfig.factory module
+-------------------------
+
+.. automodule:: lazyConfig.factory
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+lazyConfig.lazyData module
+--------------------------
+
+.. automodule:: lazyConfig.lazyData
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: lazyConfig
+   :members:
+   :undoc-members:
+   :show-inheritance:
