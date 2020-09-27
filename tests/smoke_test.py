@@ -46,6 +46,11 @@ def test_override():
     assert cfg.author == 'ME!'
     assert cfg.database.configuration.indices.index2 == 'stayIndex'
 
+    cfg.add_override({'author': 'not ME!', 'version': None})
+    
+    assert cfg.author == 'not ME!'
+    assert cfg.version == 42
+
 
 def test_equality():
     l_std = [1,2,3,'test', False]

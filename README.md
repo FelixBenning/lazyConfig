@@ -51,6 +51,21 @@ priority)
 
 > you could mix and match using `Config.from_path` and `os.environ['ENV_VAR']`
 
+### Add override
+
+If you are using an command line interface parser (e.g. argparse) to generate
+a dictionary for overriding configuration, you might want to add an
+additional override. You can use
+
+```python
+config.add_override(argparse_results)
+```
+
+where `argparse_results` is of type `Mapping`
+
+> use `vars()` to obtain a `dict` from an `arparse.Namespace` which is the
+return type of an arparse parser
+
 ### Assumptions about the file structure
 
 Filenames are used as keys in the `config` dict, so without any caveats
