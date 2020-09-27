@@ -43,6 +43,23 @@
 <em class="property">class </em><code class="sig-prename descclassname">lazyConfig.config.</code><code class="sig-name descname">Config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span><span class="p">:</span> <span class="n">collections.abc.Mapping</span></em>, <em class="sig-param"><span class="n">override</span><span class="p">:</span> <span class="n">list</span></em><span class="sig-paren">)</span><a class="headerlink" href="#lazyConfig.config.Config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Mapping</span></code></p>
 <dl class="py method">
+<dt id="lazyConfig.config.Config.add_override">
+<code class="sig-name descname">add_override</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">override</span><span class="p">:</span> <span class="n">collections.abc.Mapping</span></em>, <em class="sig-param"><span class="n">none_can_override</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#lazyConfig.config.Config.add_override" title="Permalink to this definition">¶</a></dt>
+<dd><p>add another override to the list of overrides trumping all previous ones</p>
+<p>this can be used to override configuration with command line arguments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>override</strong> (<em>Mapping</em>) – the Mapping to append</p></li>
+<li><p><strong>none_can_override</strong> (<em>bool</em><em>, </em><em>optional</em>) – override every key even if the value</p></li>
+<li><p><strong>the override is None. Defaults to False to be naturally compatible with</strong> (<em>in</em>) – </p></li>
+<li><p><strong>argparse.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="lazyConfig.config.Config.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lazyConfig.config.Config.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -257,8 +274,8 @@ emulating a list</p>
 <code class="sig-prename descclassname">lazyConfig.lazyData.</code><code class="sig-name descname">files_in_dir_with_given_ext</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dir_path</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">extensions</span><span class="p">:</span> <span class="n">list</span></em><span class="sig-paren">)</span> &#x2192; list<a class="headerlink" href="#lazyConfig.lazyData.files_in_dir_with_given_ext" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns dictionary of filenames (stripped of their extension) of files in the
 given directory with extensions from the given <cite>extensions</cite> list.</p>
-<p>Example:
-extensions: [‘.txt’]
+<p class="rubric">Example</p>
+<p>extensions: [‘.txt’]
 dir: file1.txt, file2.py
 -&gt; Output: {‘file1’ : ‘.txt’}</p>
 <p>names of directories map to None to differentiate it from files with no
