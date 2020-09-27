@@ -49,10 +49,12 @@ jobs:
           cd docs
           sphinx-apidoc -f -o source/ ../lazyConfig
           make html
+          ls build/html
+          mv build/html ../build
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@3.6.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
-          FOLDER: build/html
+          FOLDER: build
           CLEAN: true
