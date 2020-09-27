@@ -66,6 +66,21 @@ class Config(Mapping):
         self._config = self.as_dict()
         self._override = []
 
+    def add_override(self, override:Mapping, none_can_override = False):
+        """add another override to the list of overrides trumping all previous ones
+
+        this can be used to override configuration with command line arguments
+
+        Args:
+            override (Mapping): the Mapping to append
+            none_can_override (bool, optional): override every key even if the value
+            in the override is None. Defaults to False to be naturally compatible with
+            argparse.
+        """
+        if not none_can_override:
+            override = {key:value for key, value in override.items() if value is not None}
+        self._override.append(override)
+
     def __dir__(self) -> list:
         return list(self._config.keys())
 

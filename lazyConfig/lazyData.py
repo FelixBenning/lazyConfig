@@ -199,9 +199,9 @@ def files_in_dir_with_given_ext(dir_path: str, extensions: list) -> list:
     given directory with extensions from the given `extensions` list.
 
     Example:
-    extensions: ['.txt']
-    dir: file1.txt, file2.py
-    -> Output: {'file1' : '.txt'}
+        extensions: ['.txt']
+        dir: file1.txt, file2.py
+        -> Output: {'file1' : '.txt'}
 
     names of directories map to None to differentiate it from files with no
     extension i.e. ''.
