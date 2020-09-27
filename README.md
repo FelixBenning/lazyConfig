@@ -5,10 +5,11 @@
 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 [![codecov](https://codecov.io/gh/FelixBenning/lazyConfig/branch/master/graph/badge.svg)](https://codecov.io/gh/FelixBenning/lazyConfig)
 
-> lazily loading and overriding configuration for the lazy coder
+> lazily loading and overriding configuration
 
-lazyConfig is an opinionated configuration provider. Loading `.yml`, `.yaml`
-or `.json` configuration files. Opinionated since it requires you to
+lazyConfig is an opinionated configuration provider. It can load `.yml`, `.yaml`,
+`.json` and `.toml` configuration files out of the box but can be extended with
+custom loaders. Opinionated since it requires you to
 structure your configuration in a certain way in order to work.
 
 ## Why lazyConfig?
@@ -34,23 +35,29 @@ config = lazyConfig.from_path(
 
 # or with environment variables:
 
-os.envrion['OVERRIDE'] = f'/path/to/override/{os.pathsep}/path/to/another/override/'
-config = Config.from_env(config='DEFAULT_CONFIG_ENV_VAR', override='OVERRIDE')
+os.environ['CONFIG'] = '/path/to/default/config'
+os.environ['CONFIG_OVERRIDE'] = f'/path/to/override/{os.pathsep}/path/to/another/override/'
+config = lazyConfig.from_env()
 ```
 
-where the environment variables should contain the path to the configuration
-directories. Files are overriden left to right (i.e. the last argument has
+You can change the envrionment variable names by passing their names, e.g.
+
+```python
+lazyConfig.from_env(config='DEFAULT_CONFIG', override='CONFIG')
+```
+
+Files are overriden left to right (i.e. the last argument has
 priority)
 
-> you can mix and match using `Config.from_path` and `os.environ['ENV_VAR']`
+> you could mix and match using `Config.from_path` and `os.environ['ENV_VAR']`
 
 ### Assumptions about the file structure
 
-Since filenames are used as keys in the `config` dict, without any caveats
+Filenames are used as keys in the `config` dict, so without any caveats
 you would be forced to have a minimum depth of `1` for any configuration.
 
 This might not make sense for some high level, flat configuration. For this
-reason there is a special filename `__config__` (`.yml`,`.yaml` or `.json`),
+reason there is a special filename `__config__` (`.yml`,`.yaml`, `.json`,...),
 which allows you to define top level keys and values.
 
 ### Example
@@ -120,10 +127,24 @@ database:
             pipeline1: {...}
 ```
 
-So you could access `index1` with:
+### Attribute access
+
+You could then access `index1` with:
 
 ```python
 config.database.configuration.indices.index1
+```
+
+Python does not allow attributes to start with a number. So
+
+```python
+config.1attribute2breakthings
+```
+
+will not work. In these cases you will have to use
+
+```python
+config['1attribute2breakthings']
 ```
 
 ### Duplicate Keys
@@ -141,19 +162,6 @@ with the same name in the keyfile exists.
 > There might be a configuration validation function in the future to check for
 duplicate keys (in debug mode or on manual call)
 
-### Attribute access
-
-Python does not allow attributes to start with a number. So
-
-```python
-config.1attribute2breakthings
-```
-
-will not work. In these cases you will have to use
-
-```python
-config['1attribute2breakthings']
-```
 
 ### Lists
 
