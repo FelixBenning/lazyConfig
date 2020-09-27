@@ -2,29 +2,27 @@
 
 from __future__ import annotations
 from typing import Union
-from collections.abc import Sequence, Mapping, Iterator
-import os, yaml, json
+from collections.abc import Sequence, Mapping
+import os
 
 from deprecation import deprecated
 
-from .lazyData import LazyDict, LazyList, LazyMode
 import lazyConfig
+from .lazyData import LazyDict, LazyList
 
 
-def override(old:Mapping, new:Mapping):
+def override_mapping(old: Mapping, new: Mapping):
     """ override values recursively leaving sister keys untouched """
     for key, value in new.items():
         if isinstance(value, Mapping):
-            override(old[key], value)
+            override_mapping(old[key], value)
         elif isinstance(value, LazyList):
             old[key] = value.as_list()
         else:
             old[key] = value
 
 class Config(Mapping):
-    def __init__(
-        self, config:Mapping, override:list
-    ):
+    def __init__(self, config: Mapping, override: list):
         self._config = config
         self._override = override
 
@@ -53,7 +51,7 @@ class Config(Mapping):
     def as_primitive(self):
         """ alias for as_dict """
         return self.as_dict()
-    
+
     def as_dict(self):
         result = self._config
         if isinstance(result, LazyDict):
@@ -61,9 +59,9 @@ class Config(Mapping):
         for cfg in self._override:
             if isinstance(cfg, LazyDict):
                 cfg = cfg.as_dict()
-            override(result, cfg)
+            override_mapping(result, cfg)
         return result
-    
+
     def force_load(self):
         self._config = self.as_dict()
         self._override = []
@@ -85,29 +83,27 @@ class Config(Mapping):
 
     @staticmethod
     @deprecated(deprecated_in="0.3", removed_in="1.0", details="use lazyConfig.from_path() instead")
-    def from_path(config:str, *override:str) -> Config:
+    def from_path(config: str, *override: str) -> Config:
         """build from path to configuration directories"""
         return lazyConfig.from_path(config, override)
 
     @staticmethod
     @deprecated(deprecated_in="0.3", removed_in="1.0", details="use lazyConfig.from_env() instead")
-    def from_env(config:str, *override:str)->Config:
+    def from_env(config: str, *override: str)->Config:
         """ build from environment variables """
         return lazyConfig.from_path(
             os.environ[config],
-            [path for x in override if (path:=os.environ.get(x))]
+            [path for x in override if (path := os.environ.get(x))]
         )
 
 class ConfigList(Sequence):
-    def __init__(
-        self, raw_list:Union[list,LazyList] 
-    ):
+    def __init__(self, raw_list: Union[list, LazyList]):
         self.list = raw_list
 
     def __getitem__(self, key):
         res = self.list[key]
         if isinstance(res, Mapping):
-            return Config(res, []) 
+            return Config(res, [])
         if isinstance(res, list):
             return ConfigList(res)
         return res
@@ -120,8 +116,7 @@ class ConfigList(Sequence):
         """ returns a standard list, which can be serialized """
         if isinstance(self.list, list):
             return self.list
-        else:
-            return self.list.as_list()
+        return self.list.as_list()
 
     def __len__(self):
         return len(self.list)
@@ -136,4 +131,3 @@ class ConfigList(Sequence):
                     return False
             return True
         return False
-
