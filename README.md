@@ -66,6 +66,25 @@ where `argparse_results` is of type `Mapping`
 > use `vars()` to obtain a `dict` from an `arparse.Namespace` which is the
 return type of an arparse parser
 
+arparse uses `None` to indicate missing configuration. So `add_override` ignores
+`None` by default. If you provide the parameter `none_can_override=True`, you can
+remove configuration with `None` values.
+
+### Override Restrictions
+
+You can only override keys which exist in the default configuration. This
+requirement ensures that the default configuration documents all possible
+configuration options. Use the value `None` in the default configuration for
+settings you do not want to select a default for. You can obtain a dict without
+these entries with
+
+```python
+config.as_dict(strip_none=True)
+```
+
+> `strip_none=True` is the default, set it to false if you want a dict
+including all `None` values
+
 ### Assumptions about the file structure
 
 Filenames are used as keys in the `config` dict, so without any caveats
@@ -177,7 +196,6 @@ with the same name in the keyfile exists.
 > There might be a configuration validation function in the future to check for
 duplicate keys (in debug mode or on manual call)
 
-
 ### Lists
 
 Lists are overriden not extended. If the default configuration has the same key
@@ -244,6 +262,8 @@ things which I might get around to do some time:
 
 ## Versions
 
+- 0.5 proper none handling
+- 0.4 add_overwrite
 - 0.3 as_primitive, as_dict, as_list, laziness modes and custom loader, TOML support
 - 0.2.2 fix equality
 - 0.2.1 fix broken iterator

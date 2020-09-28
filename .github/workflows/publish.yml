@@ -1,14 +1,9 @@
 
 name: publish
 on:
-  push:
-    branches:
-        - master
-    # the following would create a release on any tag creation not necessarily a tag
-    # referring to a commit on master (i.e. tagged commits in branches would cause
-    # releases)
-    # tags:
-    #   - 'v*'
+  release:
+      types:
+          - "published"
 
 jobs:
   pypi:
