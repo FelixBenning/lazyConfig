@@ -51,6 +51,18 @@ def test_override():
     assert cfg.author == 'not ME!'
     assert cfg.version == 42
 
+    cfg.add_override({'version': None}, none_can_override=True)
+
+    assert cfg.version == None
+
+    cfg.force_load()
+
+    assert cfg.version == None
+
+    cfg.add_override({'a_key_which_is_not_in_the_default':'may not be overwritten'})
+
+    with pytest.raises(AttributeError):
+        cfg.a_key_which_is_not_in_the_default
 
 def test_equality():
     l_std = [1,2,3,'test', False]
