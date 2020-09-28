@@ -47,8 +47,8 @@ class LazyList(Sequence):
                     os.path.join(self.path, f"{key}" + self.extension),
                     self.loader
                 )
-            except FileNotFoundError as err:
-                raise IndexError('list index out of range') from err
+            except FileNotFoundError:
+                raise IndexError(f'lazyList index {key} out of range') from None
         elif isinstance(key, tuple):
             return [self[x] for x in key] #TODO: performance?
         elif isinstance(key, slice):
@@ -118,15 +118,15 @@ class LazyDict(Mapping):
         if self._laziness in (LazyMode.CACHED, LazyMode.EAGER):
             try:
                 extension = self._lazy_dict.pop(key)
-            except KeyError as err:
-                raise KeyError(key) from err
+            except KeyError:
+                raise KeyError(key) from None
             self._cache_dict[key] = (cache := self._fetch(key, extension, self._laziness))
             return cache
         # LazyMode.LAZY
         try:
             extension = self._lazy_dict[key]
-        except KeyError as err:
-            raise KeyError(key) from err
+        except KeyError:
+            raise KeyError(key) from None
         return self._fetch(key, extension, self._laziness)
 
     def force_load(self):
