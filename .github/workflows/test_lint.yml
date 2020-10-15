@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.8
-      uses: actions/setup-python@v2.1.3
+      uses: actions/setup-python@v2.1.4
       with:
         python-version: 3.8
     - name: Install dependencies
@@ -39,7 +39,7 @@ jobs:
         # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
 
       - name: Set up Python 3.8
-        uses: actions/setup-python@v2.1.3
+        uses: actions/setup-python@v2.1.4
         with:
           python-version: 3.8
 
