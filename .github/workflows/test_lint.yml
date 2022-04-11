@@ -25,7 +25,7 @@ jobs:
         pylint --fail-under=7.0 $(find . -type f -name "*.py" -not -path './build*' -not -path './.vscode/*'| xargs) \
           | tee pylint.txt 
     - name: Upload pylint.txt
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: pylint report
         path: pylint.txt
@@ -59,7 +59,7 @@ jobs:
         run: bash <(curl -s https://codecov.io/bash)
       
       - name: Upload HTML results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Test Coverage Report
           path: htmlcov
